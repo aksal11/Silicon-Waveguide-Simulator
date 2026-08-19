@@ -1,0 +1,58 @@
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+
+# IDE / Editors
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+
+# Operating System
+# Windows
+Thumbs.db
+Desktop.ini
+
+
+# Testing / Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+
+
+
+
+# Temporary data
+tmp/
+temp/
+
+
+
+*.log
+
+
+.env
+.env.*
+!.env.example
