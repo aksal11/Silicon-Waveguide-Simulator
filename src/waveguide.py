@@ -27,16 +27,63 @@ def create_waveguide_profile(x, width, n_core, n_clad):
 )
     return n
 
+
+
 # material properties
 n_core = 3.48  
 n_clad = 1.44
 
 # wavelength
-wavelength = 1310e-9
+wavelength = 1550e-9
 
 # free space number
 # ko free space wavenumber ko = 2 * 3.14 / wavelength
 k0 =  2* np.pi / wavelength
+
+# material wavenumbers
+k_core = k0 * n_core
+k_clad = k0 * n_clad
+
+# propagation constant range
+beta_clad = k_clad
+beta_core = k_core
+
+
+# print values
+print("Wavelength =",wavelength * 1e9, "nm")
+print("k0 =",k0, "1/m")
+
+print()
+print("Core wavenumber =", k_core, "1/m")
+print("Cladding wavenumber =", k_clad, "1/m")
+
+print()
+print("Guided beta range:")
+print(beta_clad, "< beta <", beta_core)
+
+# effective index
+n_eff_test = 2.5
+
+beta_test = k0 * n_eff_test
+
+print()
+print("Test n_eff =", n_eff_test)
+print("Corresponding beta =", beta_test, "1/m")
+
+print("Recovered n_eff =", beta_test/ k0)
+
+# Physical check
+def check_effective_index(n_eff, n_core, n_clad):
+
+    if not ( n_clad < n_eff < n_core):
+        raise ValueError("Effective index is outside the guided-mode range")
+    return True
+
+check_effective_index(
+    n_eff_test,
+    n_core,
+    n_clad
+)
 
 # Number of grid points
 # N_values = [50, 100, 500, 1000, 5000]
@@ -83,7 +130,7 @@ n = create_waveguide_profile(
 #         n_clad
 #     )
 
-    # material-dependent wavenumber
+# material-dependent wavenumber
 k = k0 * n
 
 # k**2
