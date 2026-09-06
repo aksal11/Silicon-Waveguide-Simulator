@@ -92,7 +92,8 @@ check_effective_index(
 # N_values = [50, 100, 500, 1000, 5000]
 
 # grid
-N = 1000
+# N = 1000
+N = 5
 
 
 # simulation region
@@ -109,11 +110,36 @@ x = np.linspace(x_min, x_max, N)
 # dx is determined by the simulation domain and number of grid points:
 # dx = (x_max - x_min) / (N - 1)
 dx = x[1] - x[0]
-dx =x[1] - x[0]
 
 print("Grid points N = ",N)
 print("Grid spacing dx = ",dx,"m")
 print("Grid spacing dx =", dx * 1e9, "nm")
+
+print("x =", x)
+print("dx =", dx)
+
+# number of interior grid points
+N_interior = N-2
+
+# create the second-derivative matrix
+D2 = np.zeros((N_interior, N_interior)) 
+
+# fill the matrix
+for i in range(N_interior):
+
+    DS[i,i] = -2 #creates diagonal
+
+    if i > 0:
+        D2[i,i-1] = 1 #creates the lower diagonal
+
+    if i < N_interior - 1:
+        D2[I,I+1] = 1 #creates the upper diagonal
+
+# divide by dx^2
+D2 = D2 / dx**2
+
+print("\nSecond derivative matrix D2:")
+print(D2)
 
 
 # different waveguide widths
