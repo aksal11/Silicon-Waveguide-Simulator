@@ -48,6 +48,9 @@ k_clad = k0 * n_clad
 beta_clad = k_clad
 beta_core = k_core
 
+beta_min = k_clad
+beta_max = k_core
+
 
 # print values
 print("Wavelength =",wavelength * 1e9, "nm")
@@ -99,6 +102,20 @@ x_max = 2e-6
 
 x = np.linspace(x_min, x_max, N)
 
+
+# dx = spatial grid spacing (step size) between adjacent x-points.
+# it determines the numerical resolution of the simulation.
+# smaller dx -> finer spatial resolution -> generally lower discretization error.
+# dx is determined by the simulation domain and number of grid points:
+# dx = (x_max - x_min) / (N - 1)
+dx = x[1] - x[0]
+dx =x[1] - x[0]
+
+print("Grid points N = ",N)
+print("Grid spacing dx = ",dx,"m")
+print("Grid spacing dx =", dx * 1e9, "nm")
+
+
 # different waveguide widths
 # widths =[
 #     450e-9,
@@ -131,7 +148,7 @@ n = create_waveguide_profile(
 #     )
 
 # material-dependent wavenumber
-k = k0 * n
+# k = k0 * n
 
 # k**2
 k_squared = k0**2 * n**2
@@ -177,6 +194,13 @@ plt.plot(
     label=f"N = {N}"
 )
 
+plt.figure(figsize=(10,6))
+
+plt.plot(
+    x * 1e6,
+    n,
+    label = f"N = {N}"
+)
 
 
 # visualization
