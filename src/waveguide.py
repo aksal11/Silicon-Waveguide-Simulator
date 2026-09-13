@@ -127,13 +127,13 @@ D2 = np.zeros((N_interior, N_interior))
 # fill the matrix
 for i in range(N_interior):
 
-    DS[i,i] = -2 #creates diagonal
+    D2[i,i] = -2 #creates diagonal
 
     if i > 0:
         D2[i,i-1] = 1 #creates the lower diagonal
 
     if i < N_interior - 1:
-        D2[I,I+1] = 1 #creates the upper diagonal
+        D2[i,i+1] = 1 #creates the upper diagonal
 
 # divide by dx^2
 D2 = D2 / dx**2
@@ -152,12 +152,20 @@ print(D2)
 # single width
 width = 450e-9
 
+
+
+
+
 n = create_waveguide_profile(
         x,
         width,
         n_core,
         n_clad
     )
+
+# interior points are unknown
+n_interior = n[1:-1]
+
 
 # generate and plot each profile
 # for N in N_values:
@@ -178,6 +186,24 @@ n = create_waveguide_profile(
 
 # k**2
 k_squared = k0**2 * n**2
+k_squared_interior = k0**2 * n_interior**2
+
+# material term into diagonal matrix
+material_matrix = np.diag(k_squared_interior)
+
+A = D2 + material_matrix
+
+print("\nRefractive index:")
+print(n)
+
+print("\nInterior refractive index:")
+print(n_interior)
+
+print("\nMaterial matrix:")
+print(material_matrix)
+
+print("\nWave-equation matrix A:")
+print(A)
 
 
 # quantities
