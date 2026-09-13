@@ -126,12 +126,28 @@ def solve_modes(A, wavelength, num_modes=4):
     return beta_squared, beta, n_eff, eigenvectors
 
 # ============================================================
+# fn: IDENTIFY GUIDED MODES
+# ============================================================
+
+def identify_guided_modes(n_eff, n_core, n_clad):
+
+    # guided modes must satisfy:
+    # n_clad < n_eff < n_core
+
+    guided = (
+        (n_eff > n_clad) &
+        (n_eff < n_core)
+    )
+
+    return guided
+
+# ============================================================
 # fn: RECONSTRUCT FULL MODE FIELDS
 # ============================================================
 def reconstruct_modes(modes, N):
     # array for full grid
     full_modes = np.zeros(
-        N, modes.shape[1]
+        (N, modes.shape[1])
     )
 
     # insert interior field values
@@ -146,7 +162,7 @@ def normalize_modes(models):
 
     normalized = np.zeros_like(modes)
 
-    for i in range(modes.shape[i]):
+    for i in range(modes.shape[1]):
 
         max_value = np.max(
             np.abs(modes[:,i])
@@ -210,6 +226,13 @@ beta_squared, beta, n_eff, modes = solve_modes(
     wavelength,
     num_modes=4
 )
+
+guided = identify_guided_modes(
+    n_eff,
+    n_core,
+    n_clad
+)
+
 # reconstruct fields on the full simulation grid
 full_modes = reconstruct_modes(
     modes,
@@ -239,12 +262,20 @@ print(A)
 
 print("\nCalculated modes:")
 
+print("\nCalculated modes:")
+
 for i in range(len(n_eff)):
 
-    print(f"Mode {i}")
+    if guided[i]:
+        status = "GUIDED"
+    else:
+        status = "NOT GUIDED"
+
+    print(f"\nMode {i}")
     print(f"  beta^2 = {beta_squared[i]:.6e}")
     print(f"  beta   = {beta[i]:.6e} 1/m")
-    print(f"  n_eff  = {n_eff[i]:.6f}")
+    print(f"  neff   = {n_eff[i]:.6f}")
+    print(f"  status = {status}")
 
 
 # ============================================================
