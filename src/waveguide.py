@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.sparse import diags
+from scipy.sparse.linalg import eigsh
 
 
 
@@ -125,6 +126,40 @@ def solve_modes(A, wavelength, num_modes=4):
     return beta_squared, beta, n_eff, eigenvectors
 
 # ============================================================
+# fn: RECONSTRUCT FULL MODE FIELDS
+# ============================================================
+def reconstruct_modes(modes, N):
+    # array for full grid
+    full_modes = np.zeros(
+        N, modes.shape[1]
+    )
+
+    # insert interior field values
+    full_modes[1:-1, :] = modes
+
+    return full_modes
+
+# ============================================================
+# Normalize mode fields
+# ============================================================
+def normalize_modes(models):
+
+    normalized = np.zeros_like(modes)
+
+    for i in range(modes.shape[i]):
+
+        max_value = np.max(
+            np.abs(modes[:,i])
+        )
+
+        if max_value > 0:
+            normalized[:,i] =(
+                modes[:,1] / max_value
+            )
+
+    return normalized
+
+# ============================================================
 # MATERIAL PROPERTIES
 # ============================================================
 n_core = 3.48
@@ -175,6 +210,16 @@ beta_squared, beta, n_eff, modes = solve_modes(
     wavelength,
     num_modes=4
 )
+# reconstruct fields on the full simulation grid
+full_modes = reconstruct_modes(
+    modes,
+    N
+)
+
+# normalize each mode for visualization
+full_modes = normalize_modes(
+    full_modes
+)
 
 
 # ============================================================
@@ -219,3 +264,23 @@ plt.title("Silicon Waveguide Refractive-Index Profile")
 plt.grid()
 plt.show()
 
+
+# ============================================================
+# PLOT FUNDAMENTAL MODE
+# ============================================================
+
+plt.figure(figsize=(10, 6))
+
+plt.plot(
+    x * 1e6,
+    full_modes[:, 0]
+)
+
+plt.xlabel("x (µm)")
+plt.ylabel("Normalized electric field")
+plt.title(
+    f"Fundamental Mode | neff = {n_eff[0]:.6f}"
+)
+
+plt.grid()
+plt.show()
