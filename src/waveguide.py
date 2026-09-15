@@ -175,7 +175,7 @@ def validate_modes(beta_squared, n_eff, n_core, n_clad):
 # fn: EXTRACT GUIDED MODES
 # ============================================================
 def extract_guided_modes(beta_squared, beta, n_eff, modes, guided):
-    
+
     guided_beta_squared = beta_squared[guided]
     guided_beta = beta[guided]
     guided_n_eff = n_eff[guided]
@@ -204,7 +204,7 @@ def reconstruct_modes(modes, N):
     return full_modes
 
 # ============================================================
-# Normalize mode fields
+# fn: Normalize mode fields
 # ============================================================
 def normalize_modes(models):
 
@@ -222,6 +222,60 @@ def normalize_modes(models):
             )
 
     return normalized
+
+# fn to visualize and calculate the guided mode properties
+def plot_guided_modes(x, guided_modes, guided_n_eff):
+    """
+    plot the electric-field distribution of all guided modes
+
+    parameters
+    ----------
+    x : np.ndarray
+        Spatial grid in meters.
+
+    guided_modes : np.ndarray
+        Matrix containing the guided mode field distributions
+        Shape: (number_of_grid_points, number_of_guided_modes)
+
+    guided_n_eff : np.ndarray
+        Effective refractive index of each guided mode
+    """
+    # number of guided modes
+    num_modes = guided_modes.shape[1]
+
+    # one plot for each guided mode
+    for mode_number in range(num_modes):
+
+        # extract one mode from the matrix
+        mode_field = guided_modes[:, mode_number]
+
+        # plot the field
+        plt.figure(figsize=(8,4))
+
+        plt.plot(
+            x[1:-1] * 1e6,
+            mode_field,
+            label = f"Mode {mode_number}"
+        )
+
+        # add the waveguide center line
+        plt.axvline(0, linestyle="--", alpha=0.5)
+
+        # labels
+        plt.xlabel("Positon x (um)")
+        plt.ylabel("Normalized field")
+
+        plt.title(
+            f"Guided mode {mode_number}"
+            f"(n_eff = {guided_n_eff[mode_number]:.4f})"
+        )
+
+        plt.grid(True)
+        plt.legend
+
+        plt.show()
+
+
 
 # ============================================================
 # MATERIAL PROPERTIES
@@ -291,6 +345,8 @@ guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
         guided
     )
 )
+
+plot_guided_modes(x,guided_modes, guided_n_eff)
 
 # reconstruct fields on the full simulation grid
 full_modes = reconstruct_modes(
