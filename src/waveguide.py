@@ -142,6 +142,54 @@ def identify_guided_modes(n_eff, n_core, n_clad):
     return guided
 
 # ============================================================
+# fn: VALIDATE MODE RESULTS
+# ============================================================
+def validate_modes(beta_squared, n_eff, n_core, n_clad):
+    # checl for invalid beta^2 values
+    if np.any(beta_squared <=0):
+        raise ValueError(
+            "One or more beta^2 values are not positive."
+        )
+    # check effective index range
+    invalid_neff=(
+        (n_eff < 0) |
+        (n_eff > n_core)
+    )
+
+    if np.any(invalid_neff):
+        print(
+            "Warning: One or more effective-index values "
+            "are outside the physical range."
+        )
+
+    # guided mode condition
+    guided =(
+        (n_eff > n_clad) &
+        (n_eff < n_core)
+    )
+
+    return guided
+
+# to extract the guided modes
+# ============================================================
+# fn: EXTRACT GUIDED MODES
+# ============================================================
+def extract_guided_modes(beta_squared, beta, n_eff, modes, guided):
+    
+    guided_beta_squared = beta_squared[guided]
+    guided_beta = beta[guided]
+    guided_n_eff = n_eff[guided]
+    guided_modes = modes[:, guided]
+
+    return (
+        guided_beta_squared,
+        guided_beta,
+        guided_n_eff,
+        guided_modes
+    )
+
+
+# ============================================================
 # fn: RECONSTRUCT FULL MODE FIELDS
 # ============================================================
 def reconstruct_modes(modes, N):
@@ -227,10 +275,21 @@ beta_squared, beta, n_eff, modes = solve_modes(
     num_modes=4
 )
 
-guided = identify_guided_modes(
+guided = validate_modes(
+    beta_squared,
     n_eff,
     n_core,
     n_clad
+)
+
+guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
+    extract_guided_modes(
+        beta_squared,
+        beta,
+        n_eff,
+        modes,
+        guided
+    )
 )
 
 # reconstruct fields on the full simulation grid
@@ -256,6 +315,30 @@ print("Core index =", n_core)
 print("Cladding index =", n_clad)
 print("Waveguide width =", width * 1e9, "nm")
 print("Grid points =", N)
+
+print(
+    f"\nNumber of guided modes: "
+    f"{len(guided_n_eff)}"
+)
+
+# print guided mode results
+print("\nGuided modes:")
+
+for i in range(len(guided_n_eff)):
+
+    print(f"\nGuided Mode {i}")
+    print(
+        f"  beta^2 = "
+        f"{guided_beta_squared[i]:.6e}"
+    )
+    print(
+        f"  beta   = "
+        f"{guided_beta[i]:.6e} 1/m"
+    )
+    print(
+        f"  neff   = "
+        f"{guided_n_eff[i]:.6f}"
+    )
 
 print("\nWaveguide matrix:")
 print(A)
