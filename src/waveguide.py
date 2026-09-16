@@ -204,7 +204,7 @@ def reconstruct_modes(modes, N):
     return full_modes
 
 # ============================================================
-# fn: Normalize mode fields
+# fn: NORMALIZE THE MODE FIELDS
 # ============================================================
 def normalize_modes(models):
 
@@ -224,6 +224,9 @@ def normalize_modes(models):
     return normalized
 
 # fn to visualize and calculate the guided mode properties
+# ============================================================
+# fn: PLOT GUIDED MODES
+# ============================================================
 def plot_guided_modes(x, guided_modes, guided_n_eff):
     """
     plot the electric-field distribution of all guided modes
@@ -274,6 +277,75 @@ def plot_guided_modes(x, guided_modes, guided_n_eff):
         plt.legend
 
         plt.show()
+
+# ============================================================
+# fn: PLOT MODE WITH INDEX
+# ============================================================
+def plot_mode_with_index(x, n_profile, guided_modes, guided_n_eff):
+     """
+    plot guided optical modes together with the refractive index profile
+
+    parameters
+    ----------
+    x : np.ndarray
+        spatial grid in meters
+
+    n_profile : np.ndarray
+        refractive-index profile
+
+    guided_modes : np.ndarray
+        matrix containing guided modes
+
+    guided_n_eff : np.ndarray
+        effective refractive index of each guided mode
+    """
+     x_interior = x[1:-1]
+
+     for mode_number in range(guided_modes.shape[1]):
+
+        #  extract one mode
+        mode_field = guided_modes[:, mode_number]
+
+        # create figure
+        fig, ax1 = plt.subplots(figsize=(9,5))
+
+        # ============================================================
+        # left axis : refractive index
+        # ============================================================
+        ax1.plot(
+            x_interior *1e6,
+            n_profile[1:-1],
+            label = "Refractive index"
+        )
+
+        ax1.set_xlabel("Position x (um)")
+        ax1.set_ylabel("Refractive index")
+
+        ax1.grid(True)
+
+        # ============================================================
+        # right axis : optical field
+        # ============================================================
+        ax2 = ax1.twinx()
+        ax2.plot(
+            x_interior * 1e6,
+            mode_field,
+            linestyle = "--",
+            label = f"Model {mode_number}"
+        )
+
+        ax2.set_ylabel("Normalized field")
+
+        # ============================================================
+        # Title
+        # ============================================================
+        ax1.set_title(
+            f"Mode {mode_number} and refractive index profile"
+            f"(n_eff = {guided_n_eff[mode_number]: .4f})"
+        )
+
+        plt.show
+
 
 
 
@@ -347,6 +419,13 @@ guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
 )
 
 plot_guided_modes(x,guided_modes, guided_n_eff)
+
+plot_mode_with_index(
+    x,
+    n_profile,
+    guided_modes,
+    guided_n_eff
+)
 
 # reconstruct fields on the full simulation grid
 full_modes = reconstruct_modes(
