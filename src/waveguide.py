@@ -446,14 +446,14 @@ A = build_waveguide_matrix(
 # solver
 # ============================================================
 
-
+# 1.solve modes
 beta_squared, beta, n_eff, modes = solve_modes(
     A,
     wavelength,
     num_modes=4
 )
 
-# identify guided modes
+# 2.validate results and identify guided modes
 guided = validate_modes(
     beta_squared,
     n_eff,
@@ -461,7 +461,7 @@ guided = validate_modes(
     n_clad
 )
 
-# extract guided modes
+# 3.extract guided modes
 guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
     extract_guided_modes(
         beta_squared,
@@ -472,13 +472,13 @@ guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
     )
 )
 
-# reconstruct fields on the full simulation grid
+# 4. reconstruct full mode fields
 full_modes = reconstruct_modes(
     modes,
     N
 )
 
-# normalize each mode for visualization
+# 5. normalize mode fields
 full_modes = normalize_modes(
     full_modes
 )
