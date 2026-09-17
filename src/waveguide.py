@@ -206,7 +206,12 @@ def reconstruct_modes(modes, N):
 # ============================================================
 # fn: NORMALIZE THE MODE FIELDS
 # ============================================================
-def normalize_modes(models):
+def normalize_modes(modes):
+    """
+    normalize each mode independently
+    so that its maximum absolute value is 1
+    """
+
 
     normalized = np.zeros_like(modes)
 
@@ -218,7 +223,7 @@ def normalize_modes(models):
 
         if max_value > 0:
             normalized[:,i] =(
-                modes[:,1] / max_value
+                modes[:,i] / max_value
             )
 
     return normalized
@@ -274,7 +279,7 @@ def plot_guided_modes(x, guided_modes, guided_n_eff):
         )
 
         plt.grid(True)
-        plt.legend
+        plt.legend()
 
         plt.show()
 
@@ -344,7 +349,52 @@ def plot_mode_with_index(x, n_profile, guided_modes, guided_n_eff):
             f"(n_eff = {guided_n_eff[mode_number]: .4f})"
         )
 
-        plt.show
+        plt.show()
+
+
+# ============================================================
+# fn: INTENSITY FUNCTION
+# ============================================================
+def plot_mode_intensity(x, guided_modes, guided_n_eff):
+    """
+    plot the optical intensity of all guided modes
+
+    intensity is calculated as |E(x)|^2
+    """
+
+    x_interior = x[1:-1]
+
+    for mode_number in range(guided_modes.shape[1]):
+
+        mode_field = guided_modes[:, mode_number]
+
+        intensity = np.abs(mode_field)**2
+
+        # normalize intensity
+        intensity = intensity / np.max(intensity)
+
+        plt.figure(figsize=(9,5))
+
+        plt.plot(
+            x_interior * 1e6,
+            intensity,
+            label = f"Mode {mode_number}"
+        )
+
+        plt.xlabel("Position x (um)")
+        plt.ylabel("Normalized intensity")
+
+        plt.title(
+            f"Optical intensity of guided mode {mode_number}"
+            f"(n_eff = {guided_n_eff[mode_number]:.4f})"
+        )
+
+        plt.grid(True)
+        plt.legend()
+
+        plt.show()
+
+
 
 
 
@@ -395,6 +445,75 @@ A = build_waveguide_matrix(
 # ============================================================
 # solver
 # ============================================================
+
+
+beta_squared, beta, n_eff, modes = solve_modes(
+    A,
+    wavelength,
+    num_modes=4
+)
+
+# identify guided modes
+guided = validate_modes(
+    beta_squared,
+    n_eff,
+    n_core,
+    n_clad
+)
+
+# extract guided modes
+guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
+    extract_guided_modes(
+        beta_squared,
+        beta,
+        n_eff,
+        modes,
+        guided
+    )
+)
+
+# reconstruct fields on the full simulation grid
+full_modes = reconstruct_modes(
+    modes,
+    N
+)
+
+# normalize each mode for visualization
+full_modes = normalize_modes(
+    full_modes
+)
+
+
+
+plot_guided_modes(
+    x,
+    guided_modes, 
+    guided_n_eff
+)
+
+
+
+plot_mode_with_index(
+    x,
+    n,
+    guided_modes,
+    guided_n_eff
+)
+
+plot_mode_intensity(
+    x,
+    guided_modes,
+    guided_n_eff
+)
+
+# reconstruct fields on the full simulation grid
+full_modes = reconstruct_modes(
+    modes,
+    N
+)
+
+
+
 beta_squared, beta, n_eff, modes = solve_modes(
     A,
     wavelength,
@@ -408,35 +527,14 @@ guided = validate_modes(
     n_clad
 )
 
-guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
-    extract_guided_modes(
-        beta_squared,
-        beta,
-        n_eff,
-        modes,
-        guided
-    )
-)
 
-plot_guided_modes(x,guided_modes, guided_n_eff)
 
-plot_mode_with_index(
+plot_guided_modes(
     x,
-    n_profile,
-    guided_modes,
+    guided_modes, 
     guided_n_eff
 )
 
-# reconstruct fields on the full simulation grid
-full_modes = reconstruct_modes(
-    modes,
-    N
-)
-
-# normalize each mode for visualization
-full_modes = normalize_modes(
-    full_modes
-)
 
 
 # ============================================================
@@ -478,7 +576,6 @@ for i in range(len(guided_n_eff)):
 print("\nWaveguide matrix:")
 print(A)
 
-print("\nCalculated modes:")
 
 print("\nCalculated modes:")
 
