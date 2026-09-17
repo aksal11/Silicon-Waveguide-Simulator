@@ -484,28 +484,6 @@ full_modes = normalize_modes(
 )
 
 
-
-plot_guided_modes(
-    x,
-    guided_modes, 
-    guided_n_eff
-)
-
-
-
-plot_mode_with_index(
-    x,
-    n,
-    guided_modes,
-    guided_n_eff
-)
-
-plot_mode_intensity(
-    x,
-    guided_modes,
-    guided_n_eff
-)
-
 # reconstruct fields on the full simulation grid
 full_modes = reconstruct_modes(
     modes,
@@ -528,13 +506,33 @@ guided = validate_modes(
 )
 
 
+# ============================================================
+# VISUALIZATION
+# ============================================================
 
+
+# plot guided mode fields
 plot_guided_modes(
     x,
     guided_modes, 
     guided_n_eff
 )
 
+# plot guided modes together with refractive-index profile
+plot_mode_with_index(
+    x,
+    n,
+    guided_modes,
+    guided_n_eff
+)
+
+
+# plot optical intensity
+plot_mode_intensity(
+    x,
+    guided_modes,
+    guided_n_eff
+)
 
 
 # ============================================================
@@ -591,6 +589,8 @@ for i in range(len(n_eff)):
     print(f"  beta   = {beta[i]:.6e} 1/m")
     print(f"  neff   = {n_eff[i]:.6f}")
     print(f"  status = {status}")
+
+
 
 
 # ============================================================
