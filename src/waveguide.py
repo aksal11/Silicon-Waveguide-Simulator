@@ -170,6 +170,27 @@ def validate_modes(beta_squared, n_eff, n_core, n_clad):
 
     return guided
 
+# ============================================================
+# fn: VALIDATE EIGENMODE RESIDUALS
+# ============================================================
+def calculate_mode_residuals(A, beta_squared, modes):
+
+    residuals = []
+
+    for i in range(modes.shape[1]):
+
+        mode = modes[:,i]
+
+        residual = A @ mode - beta_squared[i] * mode
+
+        relative_residual =(
+            np.linalg.norm(residual) /
+            np.linalg.norm(mode)
+        )
+        residuals.append(relative_residual)
+
+    return np.array(residuals)
+
 # to extract the guided modes
 # ============================================================
 # fn: EXTRACT GUIDED MODES
@@ -461,6 +482,12 @@ guided = validate_modes(
     n_clad
 )
 
+mode_residuals = calculate_mode_residuals(
+    A,
+    beta_squared,
+    modes
+)
+
 # 3.extract guided modes
 guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
     extract_guided_modes(
@@ -483,12 +510,6 @@ full_modes = normalize_modes(
     full_modes
 )
 
-
-# reconstruct fields on the full simulation grid
-full_modes = reconstruct_modes(
-    modes,
-    N
-)
 
 
 
@@ -589,6 +610,9 @@ for i in range(len(n_eff)):
     print(f"  beta   = {beta[i]:.6e} 1/m")
     print(f"  neff   = {n_eff[i]:.6f}")
     print(f"  status = {status}")
+    print(
+        f" residual = {mode_residuals[i]:.6e}"
+    )
 
 
 
