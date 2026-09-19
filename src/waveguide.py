@@ -191,6 +191,64 @@ def calculate_mode_residuals(A, beta_squared, modes):
 
     return np.array(residuals)
 
+
+# ============================================================
+# fn: CALCULATE V-NUMBER
+# ============================================================
+def calculate_v_number(wavelength, width, n_core, n_clad):
+
+    # validate inputs
+    if wavelength <= 0:
+        raise ValueError("Wavelength must be positive")
+
+    if width <=0:
+        raise ValueError("Waveguide width must be positive")
+
+    if n_core <= n_clad:
+        raise ValueError(
+            "n_core must be greater than n_clad"
+        )
+
+    # calculate free-space wavenumber
+    # k0 = 2*pi / wavelength
+
+    k0 = 2* np.pi / wavelength
+
+    half_width = width/2
+
+    V =(
+        k0
+        * half_width
+        * np.sqrt(n_core**2 - n_clad**2)
+    )
+    return V
+
+
+    
+
+
+# ============================================================
+# fn: SUMMARIZE MODE RESULTS
+# ============================================================
+def summarize_modes(beta_squared, beta, n_eff, guided, residuals):
+    print("\n============================")
+    print("MODE SUMMARY")
+    print("=============================")
+
+    for i in range(len(n_eff)):
+
+        if guided[i]:
+            status = "GUIDE"
+        else:
+            status =  "NOT GUIDED"
+
+        print(f"\nMode {i}")
+        print(f" beta^2 = {beta_squared[i]:.6e}")
+        print(f"  beta      = {beta[i]:.6e} 1/m")
+        print(f"  n_eff     = {n_eff[i]:.6f}")
+        print(f"  residual  = {residuals[i]:.6e}")
+        print(f"  status    = {status}")
+
 # to extract the guided modes
 # ============================================================
 # fn: EXTRACT GUIDED MODES
@@ -431,6 +489,17 @@ wavelength = 1550e-9
 width = 450e-9
 
 # ============================================================
+# V-NUMBER
+# ============================================================
+V = calculate_v_number(
+    wavelength,
+    width,
+    n_core,
+    n_clad
+)
+print(f"V-number = {V:.4f}")
+
+# ============================================================
 # SIMULATION GRID
 # ============================================================
 N = 1000
@@ -510,6 +579,14 @@ full_modes = normalize_modes(
     full_modes
 )
 
+# mode summary
+summarize_modes(
+    beta_squared,
+    beta,
+    n_eff,
+    guided,
+    mode_residuals
+)
 
 
 
