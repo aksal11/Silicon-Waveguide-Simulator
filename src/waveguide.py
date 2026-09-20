@@ -195,7 +195,7 @@ def calculate_mode_residuals(A, beta_squared, modes):
 # ============================================================
 # fn: CALCULATE V-NUMBER
 # ============================================================
-def calculate_v_number(wavelength, width, n_core, n_clad):
+def calculate_v_number(wavelength, widths, n_core, n_clad):
 
     # validate inputs
     if wavelength <= 0:
@@ -235,6 +235,39 @@ def estimate_slab_mode_count(V):
 
     return mode_count
 
+# ============================================================
+# fn: CALCULATE MODE COUNT FOR DIFFERENT WIDTHS
+# ============================================================
+def sweep_waveguide_width(
+        widths,
+        wavelengths,
+        n_core,
+        n_clad
+):
+    mode_counts =[]
+    v_numbers =[]
+
+    # calculate the v number and estimated mode count
+    # for every waveguide width
+    for width in widths:
+
+        V = calculate_v_number(
+            wavelength,
+            width,
+            n_core,
+            n_clad
+        )
+
+        mode_count = estimate_slab_mode_count(V)
+
+        v_numbers.append(V)
+        mode_counts.append(mode_count)
+
+    return (
+
+        np.array(v_numbers),
+        np.array(mode_counts)
+    )
 
 
 
@@ -521,12 +554,19 @@ wavelength = 1550e-9
 
 width = 450e-9
 
+# width sweep
+widths = np.linspace(
+    100e-9,
+    1000e-9,
+    19
+)
+
 # ============================================================
 # V-NUMBER
 # ============================================================
 V = calculate_v_number(
     wavelength,
-    width,
+    widths,
     n_core,
     n_clad
 )
@@ -566,6 +606,14 @@ x = np.linspace(
     x_max,
     N
 )
+
+v_numbers, mode_counts = sweep_waveguide_width(
+    widths,
+    wavelength,
+    n_core,
+    n_clad
+)
+
 
 # ============================================================
 # REFRACTIVE INDEX PROFILE
@@ -669,7 +717,6 @@ summarize_modes(
 )
 
 
-
 beta_squared, beta, n_eff, modes = solve_modes(
     A,
     wavelength,
@@ -771,6 +818,20 @@ for i in range(len(n_eff)):
     print(
         f" residual = {mode_residuals[i]:.6e}"
     )
+
+    # sweep results
+    print("\n=================================")
+    print("WIDTH SWEEP")
+    print("==================================")
+
+    for i in range(len(widths)):
+
+        print(
+
+            f"Width = {widths[i] * 1e9:6.0f}nm"
+            f" | V ={v_numbers[i]:.3f}"
+            f" | v ={mode_counts[i]}"
+        )
 
 
 
