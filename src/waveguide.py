@@ -224,6 +224,26 @@ def calculate_v_number(wavelength, width, n_core, n_clad):
     return V
 
 
+
+# v number validate numerical mode count
+# ============================================================
+# fn: ESTIMATE NUMBER OF GUIDED MODES
+# ============================================================
+def estimate_mode_count(V):
+
+    if V <= 0:
+        raise ValueError("V-number must be positive")
+
+    # for symmetrical slab waveguide, the approx number
+    # of guided node is:
+
+    # M= floor(V/pi) +1
+
+    mode_count = int(np.floor(V / np.pi)) + 1
+
+    return mode_count
+
+
     
 
 
@@ -498,6 +518,19 @@ V = calculate_v_number(
     n_clad
 )
 print(f"V-number = {V:.4f}")
+
+
+
+# ============================================================
+# THEORETICAL MODE COUNT
+# ============================================================
+
+estimated_modes = estimate_mode_count(V)
+
+print(f"V-number = {V:.4f}")
+print(f"Estimated guided modes = {estimated_modes}")
+
+
 
 # ============================================================
 # SIMULATION GRID
