@@ -223,6 +223,19 @@ def calculate_v_number(wavelength, width, n_core, n_clad):
     )
     return V
 
+# ============================================================
+# fn: ESTIMATE SLAB MODE COUNT
+# ============================================================
+def estimate_slab_mode_count(V):
+    if V < 0:
+        raise ValueError("V-number cannot be negative")
+
+
+    mode_count = int(np.floor(2* V /np.pi)) + 1
+
+    return mode_count
+
+
 
 
 # v number validate numerical mode count
@@ -517,8 +530,16 @@ V = calculate_v_number(
     n_core,
     n_clad
 )
-print(f"V-number = {V:.4f}")
 
+# ============================================================
+# fn: ESTIMATE SLAB MODE COUNT
+# ============================================================
+estimated_mode_count = estimate_slab_mode_count(V)
+print(f"\nV-number = {V:.4f}")
+print(
+    f"Estimated guided modes = "
+    f"{estimated_mode_count}"
+)
 
 
 # ============================================================
@@ -584,13 +605,39 @@ guided = validate_modes(
     n_clad
 )
 
+# 3.V-number mode count validation
+V = calculate_v_number(
+    wavelength,
+    width,
+    n_core,
+    n_clad
+)
+
+estimated_mode_count = estimate_slab_mode_count(V)
+
+numerical_mode_count = np.sum(guided)
+
+print(f"\nV-number = {V:.4f}")
+print(f"Estimated guided modes = {estimated_mode_count}")
+print(f"Numerical guided modes = {numerical_mode_count}")
+
+if numerical_mode_count == estimated_mode_count:
+
+    print("Mode count validation: CONSISTENT")
+
+else:
+
+    print("Mode count validation: DIFFERENT")
+
+
+# 4.calculate eigenmode residuals
 mode_residuals = calculate_mode_residuals(
     A,
     beta_squared,
     modes
 )
 
-# 3.extract guided modes
+# 4.extract guided modes
 guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
     extract_guided_modes(
         beta_squared,
@@ -601,13 +648,13 @@ guided_beta_squared, guided_beta, guided_n_eff, guided_modes = (
     )
 )
 
-# 4. reconstruct full mode fields
+# 5. reconstruct full mode fields
 full_modes = reconstruct_modes(
     modes,
     N
 )
 
-# 5. normalize mode fields
+# 6. normalize mode fields
 full_modes = normalize_modes(
     full_modes
 )
@@ -635,6 +682,7 @@ guided = validate_modes(
     n_core,
     n_clad
 )
+
 
 
 # ============================================================
