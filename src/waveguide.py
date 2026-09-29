@@ -195,7 +195,7 @@ def calculate_mode_residuals(A, beta_squared, modes):
 # ============================================================
 # fn: CALCULATE V-NUMBER
 # ============================================================
-def calculate_v_number(wavelength, widths, n_core, n_clad):
+def calculate_v_number(wavelength, width, n_core, n_clad):
 
     # validate inputs
     if wavelength <= 0:
@@ -222,18 +222,6 @@ def calculate_v_number(wavelength, widths, n_core, n_clad):
         * np.sqrt(n_core**2 - n_clad**2)
     )
     return V
-
-# ============================================================
-# fn: ESTIMATE SLAB MODE COUNT
-# ============================================================
-def estimate_slab_mode_count(V):
-    if V < 0:
-        raise ValueError("V-number cannot be negative")
-
-
-    mode_count = int(np.floor(2* V /np.pi)) + 1
-
-    return mode_count
 
 # ============================================================
 # fn: CALCULATE MODE COUNT FOR DIFFERENT WIDTHS
@@ -561,25 +549,7 @@ widths = np.linspace(
     19
 )
 
-# ============================================================
-# V-NUMBER
-# ============================================================
-V = calculate_v_number(
-    wavelength,
-    widths,
-    n_core,
-    n_clad
-)
 
-# ============================================================
-# fn: ESTIMATE SLAB MODE COUNT
-# ============================================================
-estimated_mode_count = estimate_slab_mode_count(V)
-print(f"\nV-number = {V:.4f}")
-print(
-    f"Estimated guided modes = "
-    f"{estimated_mode_count}"
-)
 
 
 # ============================================================
@@ -717,19 +687,6 @@ summarize_modes(
 )
 
 
-beta_squared, beta, n_eff, modes = solve_modes(
-    A,
-    wavelength,
-    num_modes=4
-)
-
-guided = validate_modes(
-    beta_squared,
-    n_eff,
-    n_core,
-    n_clad
-)
-
 
 
 # ============================================================
@@ -819,19 +776,19 @@ for i in range(len(n_eff)):
         f" residual = {mode_residuals[i]:.6e}"
     )
 
-    # sweep results
-    print("\n=================================")
-    print("WIDTH SWEEP")
-    print("==================================")
+# sweep results
+print("\n=================================")
+print("WIDTH SWEEP")
+print("==================================")
 
-    for i in range(len(widths)):
+for i in range(len(widths)):
 
-        print(
+    print(
 
-            f"Width = {widths[i] * 1e9:6.0f}nm"
-            f" | V ={v_numbers[i]:.3f}"
-            f" | v ={mode_counts[i]}"
-        )
+        f"Width = {widths[i] * 1e9:6.0f}nm"
+        f" | V ={v_numbers[i]:.3f}"
+        f" | v ={mode_counts[i]}"
+    )
 
 
 
