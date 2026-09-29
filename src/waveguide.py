@@ -228,7 +228,7 @@ def calculate_v_number(wavelength, width, n_core, n_clad):
 # ============================================================
 def sweep_waveguide_width(
         widths,
-        wavelengths,
+        wavelength,
         n_core,
         n_clad
 ):
@@ -550,19 +550,6 @@ widths = np.linspace(
 )
 
 
-
-
-# ============================================================
-# THEORETICAL MODE COUNT
-# ============================================================
-
-estimated_modes = estimate_mode_count(V)
-
-print(f"V-number = {V:.4f}")
-print(f"Estimated guided modes = {estimated_modes}")
-
-
-
 # ============================================================
 # SIMULATION GRID
 # ============================================================
@@ -583,6 +570,25 @@ v_numbers, mode_counts = sweep_waveguide_width(
     n_core,
     n_clad
 )
+
+# ============================================================
+# PLOT: V-NUMBER VS WAVEGUIDE WIDTH
+# ============================================================
+plt.figure(figsize=(10,6))
+
+plt.plot(
+    widths * 1e9,
+    v_numbers,
+    marker ="o"
+)
+
+plt.xlabel("Waveguide width(nm)")
+plt.ylabel("V-number")
+plt.title("V-number vs waveguide width")
+
+plt.grid(True)
+
+plt.show()
 
 
 # ============================================================
